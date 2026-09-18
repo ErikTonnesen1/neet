@@ -2,11 +2,7 @@ package main
 
 import ()
 
-func main() {
-
-}
-
-type coordinate struct {
+type Square struct {
 	x, y int
 }
 
