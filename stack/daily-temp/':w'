@@ -1,0 +1,82 @@
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	input := []int{30, 38, 30, 36, 35, 40, 28}
+	ans := dailyTemperatures(input)
+	fmt.Println(ans)
+}
+
+type stack []pair
+
+func (s *stack) peek() pair {
+	return (*s)[len((*s))-1]
+}
+
+func (s *stack) push(p pair) {
+	*s = append(*s, p)
+}
+
+func (s *stack) pop() pair {
+	last := len(*s) - 1
+	res := (*s)[last]
+	*s = (*s)[:last]
+	return res
+}
+
+type pair struct {
+	value int
+	index int
+}
+
+func peek[T any](arr []T) (top T, index int) {
+	index = len(arr) - 1
+	return arr[index], index
+}
+
+// 1. use temperatures as a stack
+// 2. pop off value
+// 3. continue to pop off values until finding a temp bigger than current value
+func dailyTemperatures(temperatures []int) []int {
+	//initialize state before iterating thru temperatures
+	ans := make([]int, len(temperatures))
+	tmpLen := len(temperatures) - 1
+	buf := []pair{
+		{value: temperatures[tmpLen], index: tmpLen},
+	}
+	temperatures = temperatures[:tmpLen]
+	//construct answer arr
+
+	for len(temperatures) != 0 {
+		top, i := peek(temperatures)
+
+		if p, _ := peek(buf); top < p.value {
+			buf = append(buf, pair{top, i})
+			temperatures = temperatures[:i]
+		} else {
+			for _, v := range buf {
+				ans[v.index] = v.index - i
+				buf = buf[:0]
+			}
+		}
+	}
+	return ans
+}
+
+func dailyTemps(temperatures []int) []int {
+	s := stack{}
+	ans := make([]int, len(temperatures))
+	for i, v := range temperatures {
+		peek := s.peek()
+		for len(s) != 0 && peek.value < v {
+			pop := s.pop()
+			ans[pop.index] = i - pop.index
+		}
+		if peek.value > v {
+			s.push(pair{value: v, index: i})
+		}
+	}
+}
