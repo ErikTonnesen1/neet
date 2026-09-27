@@ -6,11 +6,13 @@ import (
 )
 
 func main() {
-	//nums := []int{1, 2, 3, -3, 0}
-	nums2 := []int{-1, 0, 1, 2, -1, -4}
-	// fmt.Println(threeSum(nums))
+	nums := []int{-1, 0, 1, 2, -1, -4}
+	nums2 := []int{0, 0, 0, 0}
+	nums3 := []int{-2, 0, 1, 1, 2}
 
+	fmt.Println(threeSum(nums))
 	fmt.Println(threeSum(nums2))
+	fmt.Println(threeSum(nums3))
 
 }
 
@@ -18,18 +20,58 @@ func main() {
 // [1, 2] = 3
 // nums[1, len(nums)].indexOf(-3) ? return triplet : move on
 
-func threeSum(nums []int) [][]int {
-	fmt.Println(nums)
-	threeSums := make([][]int, 0)
-	for i := 0; i < len(nums)-1; i++ {
-		for j := i + 1; j < len(nums); j++ {
-			sum := nums[i] + nums[j]
-			neededValue := 0 - sum
+//sort input arr -> nlogn
+// select first elem = a
+// iterate thru array with two pointers,
+// n + 1 = b, and len(arr)-1 = c
+// 0 - n = arr[b] + arr[c]
+// if arr[b] + arr[c] > 0-n => c--
+// if arr[b] + arr[c] < 0-n => b++
+// after all that, a++
 
-			index := slices.Index(nums, neededValue)
-			fmt.Printf("Needed num: %d, Index: %d\n", neededValue, index)
-			if index != -1 {
-				threeSums = append(threeSums, []int{nums[i], nums[j], nums[index]})
+/*
+time-complexity
+	sort = nlogn
+	two for loops = n^2
+	overal: n^2
+
+space complexity
+O(n) - map
+O(n) - array
+
+total O(n)
+*/
+
+type triplet struct {
+	a, b, c int
+}
+
+func threeSum(nums []int) [][]int {
+	slices.Sort(nums)
+	threeSums := make([][]int, 0)
+
+	sumMap := make(map[triplet]bool)
+
+	for a := 0; a < len(nums)-1; a++ {
+		b := a + 1
+		c := len(nums) - 1
+
+		target := 0 - nums[a]
+
+		for b < c {
+			sum := nums[b] + nums[c]
+			if sum == target {
+				_, ok := sumMap[triplet{nums[a], nums[b], nums[c]}]
+				if !ok {
+					sumMap[triplet{nums[a], nums[b], nums[c]}] = true
+					threeSums = append(threeSums, []int{nums[a], nums[b], nums[c]})
+				}
+				b++
+				c--
+			} else if sum < target {
+				b++
+			} else if sum > target {
+				c--
 			}
 		}
 	}
